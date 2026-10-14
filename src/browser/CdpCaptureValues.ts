@@ -26,6 +26,18 @@ export const cdpStringValue = (value: unknown): string | undefined =>
 export const numberValue = (value: unknown): number | undefined =>
   typeof value === "number" && Number.isFinite(value) ? value : undefined;
 
+/** Chromium DOMSnapshot encodes empty strings as -1, outside its string table. */
+export const cdpSnapshotString = (
+  strings: readonly (string | undefined)[],
+  index: unknown,
+): string | undefined => {
+  if (index === -1) return "";
+  const integer = numberValue(index);
+  return integer !== undefined && Number.isSafeInteger(integer) && integer >= 0
+    ? strings[integer]
+    : undefined;
+};
+
 /** Preserve partial script declarations; omitted or invalid fields remain unknown. */
 export const scriptMetadataValues = (
   value: UnknownRecord | undefined,
